@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LED Control</title>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f4f4f9;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>LED Control</h1>
+  <p>Click the button to turn the LED ON or OFF.</p>
+  <button id="toggleButton">Turn ON</button>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBemF2OKIT6QueTWJTjsUQP4caN2C9JJxk",
+      authDomain: "esp32-4dee4.firebaseapp.com",
+      databaseURL: "https://esp32-4dee4-default-rtdb.firebaseio.com",
+      projectId: "esp32-4dee4",
+      storageBucket: "esp32-4dee4.appspot.com",
+      messagingSenderId: "",
+      appId: ""
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // References
+    const ledStateRef = db.ref('led/state');
+    const toggleButton = document.getElementById('toggleButton');
+
+    // Variable to track LED state
+    let ledState = 0;
+
+    // Update button text and state on page load
+    ledStateRef.on('value', (snapshot) => {
+      ledState = snapshot.val();
+      toggleButton.textContent = ledState === 1 ? 'Turn OFF' : 'Turn ON';
+    });
+
+    // Handle button click
+    toggleButton.addEventListener('click', () => {
+      const newState = ledState === 0 ? 1 : 0;
+      ledStateRef.set(newState)
+        .then(() => {
+          console.log(`LED state updated to ${newState}`);
+        })
+        .catch((error) => {
+          console.error('Error updating LED state:', error);
+        });
+    });
+  </script>
+</body>
+</html>
